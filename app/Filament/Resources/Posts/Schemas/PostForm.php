@@ -30,10 +30,25 @@ class PostForm
                         ->description("Fill in the details of the post")
                         ->icon('heroicon-o-document-text')
                         ->schema([
-                            TextInput::make("title")->required()->minLength(5),
-                            TextInput::make("slug")->required()->unique(ignoreRecord: true),
-                            Select::make("category_id")
+                            TextInput::make('title')
+                                ->required()
+                                ->rules('min:5')
+                                ->validationMessages([
+                                    'required' => 'Judul tidak boleh kosong, wajib diisi.',
+                                    'min' => 'Judul terlalu pendek, harus minimal 5 karakter.',
+                                ]),
+                            TextInput::make('slug')
+                                ->required()
+                                ->rules('min:3')
+                                ->unique(ignoreRecord: true)
+                                ->validationMessages([
+                                    'required' => 'Slug wajib diisi.',
+                                    'unique' => 'Slug ini sudah dipakai oleh postingan lain.',
+                                    'min' => 'Slug terlalu pendek, minimal 3 karakter.',
+                                ]),
+                            Select::make('category_id')
                                 ->relationship("category", "name")
+                                ->required()
                                 ->preload()
                                 ->searchable(),
                             ColorPicker::make("color"),
@@ -41,19 +56,18 @@ class PostForm
                                 ->columnSpanFull(),
                         ])
                         ->columns(2),
-
-                    Section::make("Image Upload")
-                        ->icon('heroicon-o-photo')
-                        ->schema([
-                            FileUpload::make("image")
-                                ->disk("public")
-                                ->directory("posts"),
-                        ]),
-
                 ])->columnSpan(2),
 
                 Group::make([
 
+                    Section::make("Image Upload")
+                        ->icon('heroicon-o-photo')
+                        ->schema([
+                            FileUpload::make('image')
+                                ->required()
+                                ->disk('public')
+                                ->directory('posts')
+                        ]),
                     Section::make("Meta Information")
                         ->icon('heroicon-o-tag')
                         ->schema([
